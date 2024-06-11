@@ -193,7 +193,7 @@ const createEntitiy = async (request, h) => {
                 return response;
             }
         case 'spp':
-            const isSucces = await DB_Connect.insertIntoTransaksi({
+            isSucces = await DB_Connect.insertIntoTransaksi({
                 idTransaksi: nanoid(10),
                 jumlahTagihan: jumlahTagihan,
                 tanggalJatuhTempo: jatuhTempo,

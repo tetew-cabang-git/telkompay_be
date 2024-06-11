@@ -1,4 +1,4 @@
-const { getUserHandler, createEntitiy, getData, getCustomValue } = require("./handler");
+const { getUserHandler, createEntitiy, getData, getCustomValue, updateEntitiy, deleteEntity } = require("./handler");
  
 const routes = [
     {
@@ -20,12 +20,18 @@ const routes = [
         method: 'GET',
         path: '/function/{customVal}',
         handler: getCustomValue,
-    }
-    // {
-    //     method: 'PUT',
-    //     path: '/update/{model}',
+    },
+    {
+        method: 'PUT',
+        path: '/update/{model}',
+        handler: updateEntitiy
 
-    // }
+    },
+    {
+        method: 'DELETE',
+        path: '/delete/{model}/{id}',
+        handler: deleteEntity
+    }
   ];
    
   module.exports = routes;

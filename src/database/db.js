@@ -200,6 +200,43 @@ async function insertIntoNotification(model){
     }
 }
 
+async function updateTransaksi(newValues, idTransaksi){
+    try{
+        await sequelize.authenticate();
+        console.log("Connected");
+        
+        const res = await Model.TransaksiSPP.update(newValues, {where: {idTransaksi: idTransaksi}});
+
+        if(res[0] === 0){
+            console.log(`No records found with idTransaksi: ${idTransaksi}`);
+        } else {
+            console.log(`Record with idTransaksi: ${idTransaksi} updated successfully`);
+        }
+        return res;
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
+
+async function deleteTransaksi(idTransaksi){
+    try{
+        await sequelize.authenticate();
+        console.log("Connected");
+        
+        const res = await Model.TransaksiSPP.destroy({where: {idTransaksi: idTransaksi}});
+
+        if(res[0] === 0){
+            console.log(`No records found with idTransaksi: ${idTransaksi}`);
+        } else {
+            console.log(`Record with idTransaksi: ${idTransaksi} successfully deleted`);
+        }
+        return res;
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
 async function getData(table, whereCondition){
     try {
         await sequelize.authenticate();
@@ -265,11 +302,11 @@ async function getData(table, whereCondition){
     }
 }
 
-async function getTotalPembayaran(idTransaksi, idOrangTua){
+async function getTotalPembayaran(idOrangTua){
     try {
         await sequelize.authenticate();
         console.log("Connected");
-        const totalPembayaran = await Model.MetodePembayaran.sum('jumlahDibayar', {where: [{idTransaksi: idTransaksi},{idOrangTua: idOrangTua}]});
+        const totalPembayaran = await Model.MetodePembayaran.sum('jumlahDibayar', {where:{idOrangTua: idOrangTua}});
         return totalPembayaran;
     } catch (error) {
         console.log(error);
@@ -277,12 +314,12 @@ async function getTotalPembayaran(idTransaksi, idOrangTua){
     }
 }
 
-async function getSisaTagihan(idTransaksi, idOrangTua){
+async function getSisaTagihan(idOrangTua){
     try{
         await sequelize.authenticate();
         console.log("Connected");
         const totalTagihan = await Model.TransaksiSPP.sum('jumlahTagihan', {where: {idOrangTua: idOrangTua}});
-        const totalPembayaran = await Model.MetodePembayaran.sum('jumlahDibayar', {where: [{idTransaksi: idTransaksi},{idOrangTua: idOrangTua}]});
+        const totalPembayaran = await Model.MetodePembayaran.sum('jumlahDibayar', {where: [{idOrangTua: idOrangTua}]});
         console.log(totalTagihan);
         console.log(totalPembayaran);
 
@@ -320,4 +357,6 @@ module.exports = {
     getData,
     getTotalPembayaran,
     getSisaTagihan,
+    updateTransaksi,
+    deleteTransaksi,
  }

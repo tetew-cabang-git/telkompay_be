@@ -127,7 +127,7 @@ const createEntitiy = async (request, h) => {
     const { jumlahTagihan, jatuhTempo } = request.payload;
     const { idTransaksi,tanggalPembayaran, metode, jumlahDibayar } = request.payload;
     const { tanggalCetak } = request.payload;
-    const { pesan, tanggalKirim, idSiswa } = request.payload;
+    const { tanggalKirim, idSiswa } = request.payload;
 
     switch (entity) {  
         case 'admin':
@@ -224,7 +224,14 @@ const createEntitiy = async (request, h) => {
                 tanggalPembayaran: tanggalPembayaran,
                 metode: metode,
                 jumlahDibayar: jumlahDibayar,
-            }) 
+            })
+            isSucces = await DB_Connect.insertIntoNotification({
+                idNotifikasi: nanoid(10),
+                pesan: 'Anda berhasil melakukan pembayaran SPP',
+                tanggalKirim: tanggalKirim,
+                idOrangTua: idOrangTua,
+                idSiswa: idSiswa,
+            })  
             if(isSucces){
                 const response = h.response({
                     status: "success",
@@ -261,29 +268,29 @@ const createEntitiy = async (request, h) => {
                 response.code(400);
                 return response;
             }
-        case 'notif':
-            isSucces = await DB_Connect.insertIntoNotification({
-                idNotifikasi: nanoid(10),
-                pesan: pesan,
-                tanggalKirim: tanggalKirim,
-                idOrangTua: idOrangTua,
-                idSiswa: idSiswa,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan Bukti",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan Bukti",
-                });
-                response.code(400);
-                return response;
-            }
+        // case 'notif':
+        //     isSucces = await DB_Connect.insertIntoNotification({
+        //         idNotifikasi: nanoid(10),
+        //         pesan: pesan,
+        //         tanggalKirim: tanggalKirim,
+        //         idOrangTua: idOrangTua,
+        //         idSiswa: idSiswa,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Bukti",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Bukti",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     }
         default:
             const response = h.response({
                 status: "failed",
@@ -326,12 +333,12 @@ const getData = async (request, h) => {
 const getCustomValue = async (request, h) => {
     const { customVal } = request.params;
 
-    const { idOrangTua, idTransaksi } = request.query;
+    const { idOrangTua } = request.query;
     let response, result;
 
     switch(customVal){
         case 'total_bayar':
-            result = await DB_Connect.getTotalPembayaran(idTransaksi, idOrangTua);
+            result = await DB_Connect.getTotalPembayaran(idOrangTua);
             console.log(result);
             response = h.response({
                 status: "success",
@@ -340,7 +347,7 @@ const getCustomValue = async (request, h) => {
             response.code(200);
             return response;
         case 'total_tagihan':
-            result = await DB_Connect.getSisaTagihan(idTransaksi, idOrangTua);
+            result = await DB_Connect.getSisaTagihan(idOrangTua);
             console.log(result);
             response = h.response({
                 status: "success",
@@ -354,169 +361,171 @@ const getCustomValue = async (request, h) => {
 }
 
 const updateEntitiy = async (request, h) => {
-    const { entity } = request.query;
+    const { model } = request.params;
+    const { idTransaksi } = request.query;
 
     const { username } = request.payload;
     const { nisnKode, namaOrtu } = request.payload;
     const { nisn, namaSiswa, idOrangTua } = request.payload;
     const { jumlahTagihan, jatuhTempo } = request.payload;
-    const { idTransaksi,tanggalPembayaran, metode, jumlahDibayar } = request.payload;
+    const { tanggalPembayaran, metode, jumlahDibayar } = request.payload;
     const { tanggalCetak } = request.payload;
     const { pesan, tanggalKirim, idSiswa } = request.payload;
 
-    switch (entity) {  
-        case 'admin':
-            isSucces = await DB_Connect.insertIntoAdmin({
-                id: nanoid(10),
-                username: username,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan Admin",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan Admin",
-                });
-                response.code(400);
-                return response;
-            }
-        case 'ortu':
-            isSucces = await DB_Connect.insertIntoOrtu({
-                idOrangTua: nanoid(10),
-                nisn_kode: nisnKode,
-                nama: namaOrtu,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan Orang Tua",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan Orang Tua",
-                });
-                response.code(400);
-                return response;
-            }
-        case 'siswa':
-            isSucces = await DB_Connect.insertIntoSiswa({
-                idSiswa: nanoid(10),
-                nama: namaSiswa,
-                nisn: nisn,
-                idOrangTua: idOrangTua,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan Siswa",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan Siswa",
-                });
-                response.code(400);
-                return response;
-            }
+    switch (model) {  
+        // case 'admin':
+        //     isSucces = await DB_Connect.insertIntoAdmin({
+        //         id: nanoid(10),
+        //         username: username,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Admin",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Admin",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     }
+        // case 'ortu':
+        //     isSucces = await DB_Connect.insertIntoOrtu({
+        //         idOrangTua: nanoid(10),
+        //         nisn_kode: nisnKode,
+        //         nama: namaOrtu,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Orang Tua",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Orang Tua",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     }
+        // case 'siswa':
+        //     isSucces = await DB_Connect.insertIntoSiswa({
+        //         idSiswa: nanoid(10),
+        //         nama: namaSiswa,
+        //         nisn: nisn,
+        //         idOrangTua: idOrangTua,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Siswa",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Siswa",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     }
         case 'spp':
-            isSucces = await DB_Connect.insertIntoTransaksi({
-                idTransaksi: nanoid(10),
+            isSucces = await DB_Connect.updateTransaksi({
                 jumlahTagihan: jumlahTagihan,
                 tanggalJatuhTempo: jatuhTempo,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan SPP",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan SPP",
-                });
-                response.code(400);
-                return response;
-            }
-        case 'pembayaran':
-            isSucces = await DB_Connect.insertIntoPembayaran({
-                idMetode: nanoid(10),
-                idTransaksi: idTransaksi,
-                idOrangTua: idOrangTua,
-                tanggalPembayaran: tanggalPembayaran,
-                metode: metode,
-                jumlahDibayar: jumlahDibayar,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan Pembayaran",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan Pembayaran",
-                });
-                response.code(400);
-                return response;
-            }
-        case 'bukti':
-            isSucces = await DB_Connect.insertIntoBukti({
-                idBukti: nanoid(10),
-                tanggalCetak: tanggalCetak,
-                idTransaksi: idTransaksi,
-            }) 
-            if(isSucces){
-                const response = h.response({
-                    status: "success",
-                    message: "Berhasil menambahkan Bukti",
-                });
-                response.code(201);
-                return response;
-            } else {
-                const response = h.response({
-                    status: "failed",
-                    message: "Gagal menambahkan Bukti",
-                });
-                response.code(400);
-                return response;
-            } 
-        case 'notif':
-            isSucces = await DB_Connect.insertIntoNotification({
-                idNotifikasi: nanoid(10),
-                pesan: pesan,
-                tanggalKirim: tanggalKirim,
-                idOrangTua: idOrangTua,
                 idSiswa: idSiswa,
-            }) 
+                idOrangTua: idOrangTua
+            }, idTransaksi); 
             if(isSucces){
                 const response = h.response({
                     status: "success",
-                    message: "Berhasil menambahkan Bukti",
+                    message: "Berhasil update SPP",
                 });
-                response.code(201);
+                response.code(200);
                 return response;
             } else {
                 const response = h.response({
                     status: "failed",
-                    message: "Gagal menambahkan Bukti",
+                    message: "Gagal update SPP",
                 });
                 response.code(400);
                 return response;
-            } 
+            }
+        // case 'pembayaran':
+        //     isSucces = await DB_Connect.insertIntoPembayaran({
+        //         idMetode: nanoid(10),
+        //         idTransaksi: idTransaksi,
+        //         idOrangTua: idOrangTua,
+        //         tanggalPembayaran: tanggalPembayaran,
+        //         metode: metode,
+        //         jumlahDibayar: jumlahDibayar,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Pembayaran",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Pembayaran",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     }
+        // case 'bukti':
+        //     isSucces = await DB_Connect.insertIntoBukti({
+        //         idBukti: nanoid(10),
+        //         tanggalCetak: tanggalCetak,
+        //         idTransaksi: idTransaksi,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Bukti",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Bukti",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     } 
+        // case 'notif':
+        //     isSucces = await DB_Connect.insertIntoNotification({
+        //         idNotifikasi: nanoid(10),
+        //         pesan: pesan,
+        //         tanggalKirim: tanggalKirim,
+        //         idOrangTua: idOrangTua,
+        //         idSiswa: idSiswa,
+        //     }) 
+        //     if(isSucces){
+        //         const response = h.response({
+        //             status: "success",
+        //             message: "Berhasil menambahkan Bukti",
+        //         });
+        //         response.code(201);
+        //         return response;
+        //     } else {
+        //         const response = h.response({
+        //             status: "failed",
+        //             message: "Gagal menambahkan Bukti",
+        //         });
+        //         response.code(400);
+        //         return response;
+        //     } 
         default:
             const response = h.response({
                 status: "failed",
@@ -527,4 +536,36 @@ const updateEntitiy = async (request, h) => {
     }
 }
 
-module.exports = { getUserHandler, createEntitiy, getData, getCustomValue };
+const deleteEntity = async (request, h) => {
+    const { model, id } = request.params;
+    
+    console.log(id);
+    switch(model){
+        case 'spp':
+            isSucces = await DB_Connect.deleteTransaksi(id); 
+            if(isSucces != null){
+                const response = h.response({
+                    status: "success",
+                    message: "Berhasil delete SPP",
+                });
+                response.code(200);
+                return response;
+            } else {
+                const response = h.response({
+                    status: "failed",
+                    message: "Gagal delete SPP",
+                });
+                response.code(400);
+                return response;
+            }
+        default:
+            const response = h.response({
+                status: "failed",
+                message: "Input tidak dikenal",
+            });
+            response.code(500);
+            return response;
+    }
+}
+
+module.exports = { getUserHandler, createEntitiy, getData, getCustomValue, updateEntitiy, deleteEntity };

@@ -247,14 +247,50 @@ async function getData(table, whereCondition){
                         console.log(result);
                     return result;
                 }
+            case 'pembayaran':
+                if(whereCondition != null){
+                    const result = await Model.MetodePembayaran.findAll({where: {idTransaksi: whereCondition.idTransaksi}});
+                        console.log(result);
+                    return result;
+                } else {
+                    const result = await Model.MetodePembayaran.findAll();
+                        console.log(result);
+                    return result;
+                }
             default:
                 break;
         }
     } catch (error) {
-        
+        console.log(error);
     }
 }
 
+async function getTotalPembayaran(idTransaksi, idOrangTua){
+    try {
+        await sequelize.authenticate();
+        console.log("Connected");
+        const totalPembayaran = await Model.MetodePembayaran.sum('jumlahDibayar', {where: [{idTransaksi: idTransaksi},{idOrangTua: idOrangTua}]});
+        return totalPembayaran;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+async function getSisaTagihan(idTransaksi, idOrangTua){
+    try{
+        await sequelize.authenticate();
+        console.log("Connected");
+        const totalTagihan = await Model.TransaksiSPP.sum('jumlahTagihan', {where: {idOrangTua: idOrangTua}});
+        const totalPembayaran = await Model.MetodePembayaran.sum('jumlahDibayar', {where: [{idTransaksi: idTransaksi},{idOrangTua: idOrangTua}]});
+        console.log(totalTagihan);
+        console.log(totalPembayaran);
+
+        return totalTagihan-totalPembayaran;
+    }catch (error){
+        console.log(error);
+    }
+}
 async function syncDatabase() {
     try {
         await sequelize.authenticate();
@@ -282,4 +318,6 @@ module.exports = {
     insertIntoBukti,
     insertIntoNotification,
     getData,
+    getTotalPembayaran,
+    getSisaTagihan,
  }

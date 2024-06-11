@@ -323,6 +323,36 @@ const getData = async (request, h) => {
     
 }
 
+const getCustomValue = async (request, h) => {
+    const { customVal } = request.params;
+
+    const { idOrangTua, idTransaksi } = request.query;
+    let response, result;
+
+    switch(customVal){
+        case 'total_bayar':
+            result = await DB_Connect.getTotalPembayaran(idTransaksi, idOrangTua);
+            console.log(result);
+            response = h.response({
+                status: "success",
+                data: result
+            });
+            response.code(200);
+            return response;
+        case 'total_tagihan':
+            result = await DB_Connect.getSisaTagihan(idTransaksi, idOrangTua);
+            console.log(result);
+            response = h.response({
+                status: "success",
+                data: result
+            });
+            response.code(200);
+            return response;
+        default:
+            break;
+    }
+}
+
 const updateEntitiy = async (request, h) => {
     const { entity } = request.query;
 
@@ -497,4 +527,4 @@ const updateEntitiy = async (request, h) => {
     }
 }
 
-module.exports = { getUserHandler, createEntitiy, getData };
+module.exports = { getUserHandler, createEntitiy, getData, getCustomValue };

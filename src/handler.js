@@ -16,7 +16,8 @@ const getUserHandler = async (request, h) => {
                     const response = h.response({
                         status: "success",
                         message: "Berhasil Login sebagai admin",
-                        data:{
+                        data: {
+                            idAdmin: admin.idAdmin,
                             username: admin.username,
                             password: admin.password
                         }
@@ -259,7 +260,7 @@ const createEntitiy = async (request, h) => {
                 });
                 response.code(400);
                 return response;
-            } 
+            }
         case 'notif':
             isSucces = await DB_Connect.insertIntoNotification({
                 idNotifikasi: nanoid(10),
@@ -282,7 +283,7 @@ const createEntitiy = async (request, h) => {
                 });
                 response.code(400);
                 return response;
-            } 
+            }
         default:
             const response = h.response({
                 status: "failed",
